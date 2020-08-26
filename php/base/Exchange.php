@@ -124,7 +124,6 @@ class Exchange {
         'deribit',
         'digifinex',
         'dsx',
-        'equos',
         'eterbase',
         'exmo',
         'exx',
