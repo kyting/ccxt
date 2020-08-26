@@ -1191,7 +1191,7 @@ module.exports = class equos extends Exchange {
     parseOrders (orders, market = undefined, since = undefined, limit = undefined, params = {}) {
         // For every time in orders, parse order, and extend.
         let result = [];
-        for (let i = 0; i < orders.length (); i++) {
+        for (let i = 0; i < orders.length; i++) {
             const order = this.extend (this.parseOrder (orders[i], market), params);
             result.push (order);
         }
@@ -1200,11 +1200,11 @@ module.exports = class equos extends Exchange {
         // HOWEVER. id is a string and not a number
         // So I need to convert back and forth
         for (let i = 0; i < result.length; i++) {
-            result['id'] = this.safeInteger (result[i], 'id');
+            result[i]['id'] = this.safeInteger (result[i], 'id');
         }
         result = this.sortBy (result, 'id');
         for (let i = 0; i < result.length; i++) {
-            result['id'] = this.safeString (result[i], 'id');
+            result[i]['id'] = this.safeString (result[i], 'id');
         }
         const symbol = (market !== undefined) ? market['symbol'] : undefined;
         const filterred = this.filterBySymbolSinceLimit (result, symbol, since, limit);

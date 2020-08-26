@@ -1197,7 +1197,7 @@ class equos extends Exchange {
     public function parse_orders($orders, $market = null, $since = null, $limit = null, $params = array ()) {
         // For every time in $orders, parse $order, and extend.
         $result = array();
-        for ($i = 0; $i < strlen($orders) (); $i++) {
+        for ($i = 0; $i < count($orders); $i++) {
             $order = array_merge($this->parse_order($orders[$i], $market), $params);
             $result[] = $order;
         }
@@ -1206,11 +1206,11 @@ class equos extends Exchange {
         // HOWEVER. id is a string and not a number
         // So I need to convert back and forth
         for ($i = 0; $i < count($result); $i++) {
-            $result['id'] = $this->safe_integer($result[$i], 'id');
+            $result[$i]['id'] = $this->safe_integer($result[$i], 'id');
         }
         $result = $this->sort_by($result, 'id');
         for ($i = 0; $i < count($result); $i++) {
-            $result['id'] = $this->safe_string($result[$i], 'id');
+            $result[$i]['id'] = $this->safe_string($result[$i], 'id');
         }
         $symbol = ($market !== null) ? $market['symbol'] : null;
         $filterred = $this->filter_by_symbol_since_limit($result, $symbol, $since, $limit);

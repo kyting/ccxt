@@ -1074,7 +1074,7 @@ class equos(Exchange):
     def parse_orders(self, orders, market=None, since=None, limit=None, params={}):
         # For every time in orders, parse order, and extend.
         result = []
-        for i in range(0, len(orders)()):
+        for i in range(0, len(orders)):
             order = self.extend(self.parse_order(orders[i], market), params)
             result.append(order)
         # result = list(orders).map((order) => self.extend(self.parse_order(order, market), params).values())
@@ -1082,10 +1082,10 @@ class equos(Exchange):
         # HOWEVER. id is a string and not a number
         # So I need to convert back and forth
         for i in range(0, len(result)):
-            result['id'] = self.safe_integer(result[i], 'id')
+            result[i]['id'] = self.safe_integer(result[i], 'id')
         result = self.sort_by(result, 'id')
         for i in range(0, len(result)):
-            result['id'] = self.safe_string(result[i], 'id')
+            result[i]['id'] = self.safe_string(result[i], 'id')
         symbol = market['symbol'] if (market is not None) else None
         filterred = self.filter_by_symbol_since_limit(result, symbol, since, limit)
         return filterred
