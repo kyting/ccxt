@@ -422,8 +422,13 @@ class equos extends Exchange {
         }
         $request['orderId'] = $id;
         $orderHistoryResponse = $this->privatePostGetOrderHistory (array_merge($request, $params));
-        $order = $this->parse_order($orderHistoryResponse, $market);
-        return $order;
+        $orderList = $this->safe_value($orderHistoryResponse, 'orders', array());
+        try {
+            $index = strlen($orderList) - 1;
+            return $this->parse_order($orderList[$index], $market);
+        } catch (Exception $err) {
+            throw new OrderNotFound('Error found while trying to access details for order. ', $id);
+        }
     }
 
     public function fetch_orders($symbol = null, $since = null, $limit = null, $params = array ()) {

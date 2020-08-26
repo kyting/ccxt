@@ -416,8 +416,13 @@ module.exports = class equos extends Exchange {
         }
         request['orderId'] = id;
         const orderHistoryResponse = await this.privatePostGetOrderHistory (this.extend (request, params));
-        const order = this.parseOrder (orderHistoryResponse, market);
-        return order;
+        const orderList = this.safeValue (orderHistoryResponse, 'orders', []);
+        try {
+            const index = orderList.length - 1;
+            return this.parseOrder (orderList[index], market);
+        } catch (err) {
+            throw new OrderNotFound ('Error found while trying to access details for order. ', id);
+        }
     }
 
     async fetchOrders (symbol = undefined, since = undefined, limit = undefined, params = {}) {

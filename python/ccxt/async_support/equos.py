@@ -377,8 +377,12 @@ class equos(Exchange):
             market = self.market(symbol)
         request['orderId'] = id
         orderHistoryResponse = await self.privatePostGetOrderHistory(self.extend(request, params))
-        order = self.parse_order(orderHistoryResponse, market)
-        return order
+        orderList = self.safe_value(orderHistoryResponse, 'orders', [])
+        try:
+            index = len(orderList) - 1
+            return self.parse_order(orderList[index], market)
+        except Exception as err:
+            raise OrderNotFound('Error found while trying to access details for order. ', id)
 
     async def fetch_orders(self, symbol=None, since=None, limit=None, params={}):
         await self.load_markets()
