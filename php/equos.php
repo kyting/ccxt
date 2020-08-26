@@ -1213,8 +1213,8 @@ class equos extends Exchange {
             $result[$i]['id'] = $this->safe_string($result[$i], 'id');
         }
         $symbol = ($market !== null) ? $market['symbol'] : null;
-        $filterred = $this->filter_by_symbol_since_limit($result, $symbol, $since, $limit);
-        return $filterred;
+        $filtered = $this->filter_by_symbol_since_limit($result, $symbol, $since, $limit);
+        return $filtered;
     }
 
     public function parse_transaction_status($status) {

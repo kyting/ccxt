@@ -1207,8 +1207,8 @@ module.exports = class equos extends Exchange {
             result[i]['id'] = this.safeString (result[i], 'id');
         }
         const symbol = (market !== undefined) ? market['symbol'] : undefined;
-        const filterred = this.filterBySymbolSinceLimit (result, symbol, since, limit);
-        return filterred;
+        const filtered = this.filterBySymbolSinceLimit (result, symbol, since, limit);
+        return filtered;
     }
 
     parseTransactionStatus (status) {

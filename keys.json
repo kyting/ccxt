@@ -48,6 +48,7 @@
     "dx":            { "skip": true },
     "ethfinex":      { "skip": true },
     "exmo":          { "skip": true },
+    "equos":         { "skip": true },
     "exx":           { "skip": true },
     "fcoin":         { "skip": true },
     "fcoinjp":       { "skip": true },

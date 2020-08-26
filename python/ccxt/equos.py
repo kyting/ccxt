@@ -1087,8 +1087,8 @@ class equos(Exchange):
         for i in range(0, len(result)):
             result[i]['id'] = self.safe_string(result[i], 'id')
         symbol = market['symbol'] if (market is not None) else None
-        filterred = self.filter_by_symbol_since_limit(result, symbol, since, limit)
-        return filterred
+        filtered = self.filter_by_symbol_since_limit(result, symbol, since, limit)
+        return filtered
 
     def parse_transaction_status(self, status):
         return status
