@@ -401,7 +401,7 @@ class equos extends Exchange {
             throw new OrderNotFound($this->id . ' => $order $id ' . $id . ' is not found in open order');
         }
         $this->load_markets();
-        $clientOrderId = $order['info']['orders'][0]['clOrdId'];
+        $clientOrderId = $order['clientOrderId'];
         // Equos' API requires the clOrdId and clOrdId
         $request = array();
         $request['clOrdId'] = $clientOrderId;

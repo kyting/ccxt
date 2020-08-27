@@ -358,7 +358,7 @@ class equos(Exchange):
         if self.safe_string(order, 'status') != 'open':
             raise OrderNotFound(self.id + ': order id ' + id + ' is not found in open order')
         await self.load_markets()
-        clientOrderId = order['info']['orders'][0]['clOrdId']
+        clientOrderId = order['clientOrderId']
         # Equos' API requires the clOrdId and clOrdId
         request = {}
         request['clOrdId'] = clientOrderId

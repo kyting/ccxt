@@ -395,7 +395,7 @@ module.exports = class equos extends Exchange {
             throw new OrderNotFound (this.id + ': order id ' + id + ' is not found in open order');
         }
         await this.loadMarkets ();
-        const clientOrderId = order['info']['orders'][0]['clOrdId'];
+        const clientOrderId = order['clientOrderId'];
         // Equos' API requires the clOrdId and clOrdId
         const request = {};
         request['clOrdId'] = clientOrderId;
