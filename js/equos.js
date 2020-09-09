@@ -301,7 +301,7 @@ module.exports = class equos extends Exchange {
         const request = this.createOrderRequest (market, type, side, amount, price, params);
         const order = await this.privatePostOrder (request);
         return {
-            'id': this.safeString (order['orderId']),
+            'id': this.safeString (order, 'orderId'),
             'info': order,
         };
     }

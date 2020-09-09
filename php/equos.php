@@ -307,7 +307,7 @@ class equos extends Exchange {
         $request = $this->create_order_request($market, $type, $side, $amount, $price, $params);
         $order = $this->privatePostOrder ($request);
         return array(
-            'id' => $this->safe_string($order['orderId']),
+            'id' => $this->safe_string($order, 'orderId'),
             'info' => $order,
         );
     }
