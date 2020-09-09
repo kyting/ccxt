@@ -280,7 +280,7 @@ class equos(Exchange):
         request = self.create_order_request(market, type, side, amount, price, params)
         order = self.privatePostOrder(request)
         return {
-            'id': order['orderId'],
+            'id': self.safe_string(order['orderId']),
             'info': order,
         }
 
