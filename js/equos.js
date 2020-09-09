@@ -300,27 +300,10 @@ module.exports = class equos extends Exchange {
         }
         const request = this.createOrderRequest (market, type, side, amount, price, params);
         const order = await this.privatePostOrder (request);
-        // HACK: to call twice, will not get merged by kroitor it seems
-        // TODO: Remove before making a pull request
-        for (let i = 0; i < 10; i++) {
-            try {
-                const fetchedOrders = await this.fetchOrders (symbol);
-                let fetchedOrderDetails = undefined;
-                // Have to do a find because we can't use JS methods
-                for (let j = 0; j < fetchedOrders.length; j++) {
-                    if (fetchedOrders[j]['info']['clOrdId'] === order['clOrdId']) {
-                        fetchedOrderDetails = fetchedOrders[j];
-                        break;
-                    }
-                }
-                if (fetchedOrderDetails !== undefined) {
-                    return fetchedOrderDetails;
-                }
-            } catch (err) {
-                throw new OrderNotFound ('Error found while trying to access details for order. ', order['clOrdId']);
-            }
-        }
-        throw new OrderNotFound ('clOrdId %o cannot be found.', order['clOrdId']);
+        return {
+            'id': order['orderId'],
+            'info': order,
+        };
     }
 
     createOrderRequest (market, type, side, amount, price = undefined, params = {}) {
@@ -347,6 +330,7 @@ module.exports = class equos extends Exchange {
             'price_scale': price_scale,
             'quantity': this.convertToScale (amount, amount_scale),
             'quantity_scale': amount_scale,
+            'blockWaitAck': 1,
         };
         return this.extend (request, params);
     }
