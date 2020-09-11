@@ -306,27 +306,10 @@ class equos extends Exchange {
         }
         $request = $this->create_order_request($market, $type, $side, $amount, $price, $params);
         $order = $this->privatePostOrder ($request);
-        // HACK => to call twice, will not get merged by kroitor it seems
-        // TODO => Remove before making a pull $request
-        for ($i = 0; $i < 10; $i++) {
-            try {
-                $fetchedOrders = $this->fetch_orders($symbol);
-                $fetchedOrderDetails = null;
-                // Have to do a find because we can't use JS methods
-                for ($j = 0; $j < count($fetchedOrders); $j++) {
-                    if ($fetchedOrders[$j]['info']['clOrdId'] === $order['clOrdId']) {
-                        $fetchedOrderDetails = $fetchedOrders[$j];
-                        break;
-                    }
-                }
-                if ($fetchedOrderDetails !== null) {
-                    return $fetchedOrderDetails;
-                }
-            } catch (Exception $err) {
-                throw new OrderNotFound('Error found while trying to access details for $order-> ', $order['clOrdId']);
-            }
-        }
-        throw new OrderNotFound('clOrdId %o cannot be found.', $order['clOrdId']);
+        return array(
+            'id' => $this->safe_string($order, 'orderId'),
+            'info' => $order,
+        );
     }
 
     public function create_order_request($market, $type, $side, $amount, $price = null, $params = array ()) {
@@ -353,6 +336,7 @@ class equos extends Exchange {
             'price_scale' => $price_scale,
             'quantity' => $this->convert_to_scale($amount, $amount_scale),
             'quantity_scale' => $amount_scale,
+            'blockWaitAck' => 1,
         );
         return array_merge($request, $params);
     }
