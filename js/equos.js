@@ -117,6 +117,7 @@ module.exports = class equos extends Exchange {
         if (this.currencies_by_id === undefined) {
             await this.fetchCurrencies ();
         }
+        params['verbose'] = true;
         const response = await this.publicGetGetInstrumentPairs (params);
         const markets = [];
         const results = this.safeValue (response, 'instrumentPairs', []);
@@ -761,13 +762,13 @@ module.exports = class equos extends Exchange {
     }
 
     parseMarket (market) {
-        const id = market[0]; // instrumentId
-        const symbol = market[1]; // symbol
+        const id = market['instrumentId']; // instrumentId
+        const symbol = market['symbol']; // symbol
         const splitSymbol = symbol.split ('/');
         let base = splitSymbol[0].toLowerCase ();
         let quote = splitSymbol[1].toLowerCase ();
-        const baseId = market[3]; // baseId
-        const quoteId = market[2]; // quotedId
+        const baseId = market['baseId']; // baseId
+        const quoteId = market['quoteId']; // quotedId
         const baseCurrency = this.safeValue (this.currencies_by_id, baseId);
         const quoteCurrency = this.safeValue (this.currencies_by_id, quoteId);
         if (baseCurrency !== undefined) {
@@ -782,13 +783,13 @@ module.exports = class equos extends Exchange {
             active = true;
         }
         const precision = {
-            'amount': market[5], // quantity_scale
-            'price': market[4], // price_scale
+            'amount': -Math.log10 (market['minTradeVol']), // tie amount precision to minimum amount value
+            'price': market['price_scale'], // price_scale
             'cost': undefined,
         };
         const limits = {
             'amount': {
-                'min': undefined,
+                'min': market['minTradeVol'],
                 'max': undefined,
             },
             'price': {
