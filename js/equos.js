@@ -776,7 +776,7 @@ module.exports = class equos extends Exchange {
             active = true;
         }
         const precision = {
-            'amount': -Math.log10 (market['minTradeVol']), // tie amount precision to minimum amount value
+            'amount': Math.round (-Math.log10 (market['minTradeVol'])), // tie amount precision to minimum amount value
             'price': market['price_scale'], // price_scale
             'cost': undefined,
         };
