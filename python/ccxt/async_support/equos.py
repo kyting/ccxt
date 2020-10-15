@@ -697,7 +697,7 @@ class equos(Exchange):
         if market['securityStatus'] == 1:
             active = True
         precision = {
-            'amount': -math.log10(market['minTradeVol']),  # tie amount precision to minimum amount value
+            'amount': int(round(-math.log10(market['minTradeVol']))),  # tie amount precision to minimum amount value
             'price': market['price_scale'],  # price_scale
             'cost': None,
         }

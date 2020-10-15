@@ -782,7 +782,7 @@ class equos extends Exchange {
             $active = true;
         }
         $precision = array(
-            'amount' => -log10 ($market['minTradeVol']), // tie amount $precision to minimum amount value
+            'amount' => (int) round(-log10 ($market['minTradeVol'])), // tie amount $precision to minimum amount value
             'price' => $market['price_scale'], // price_scale
             'cost' => null,
         );
