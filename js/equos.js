@@ -772,7 +772,7 @@ module.exports = class equos extends Exchange {
         }
         // status
         let active = false;
-        if (market[6] === 1) {
+        if (market['securityStatus'] === 1) {
             active = true;
         }
         const precision = {

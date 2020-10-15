@@ -778,7 +778,7 @@ class equos extends Exchange {
         }
         // status
         $active = false;
-        if ($market[6] === 1) {
+        if ($market['securityStatus'] === 1) {
             $active = true;
         }
         $precision = array(

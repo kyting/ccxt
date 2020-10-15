@@ -694,7 +694,7 @@ class equos(Exchange):
             quote = quoteCurrency['code']
         # status
         active = False
-        if market[6] == 1:
+        if market['securityStatus'] == 1:
             active = True
         precision = {
             'amount': -math.log10(market['minTradeVol']),  # tie amount precision to minimum amount value
