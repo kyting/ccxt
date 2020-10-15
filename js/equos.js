@@ -372,18 +372,11 @@ module.exports = class equos extends Exchange {
 
     async cancelOrder (id, symbol = undefined, params = {}) {
         if (symbol === undefined) {
-            throw new ArgumentsRequired (this.id + ' fetchOrder requires a symbol argument');
-        }
-        // NOTE: We need to fetch order because we need to obtain the symbol id and clientOrderId
-        const order = await this.fetchOrder (id, symbol, params);
-        if (this.safeString (order, 'status') !== 'open') {
-            throw new OrderNotFound (this.id + ': order id ' + id + ' is not found in open order');
+            throw new ArgumentsRequired (this.id + ' cancelOrder requires a symbol argument');
         }
         await this.loadMarkets ();
-        const clientOrderId = order['clientOrderId'];
-        // Equos' API requires the clOrdId and clOrdId
         const request = {};
-        request['clOrdId'] = clientOrderId;
+        request['origOrderId'] = id;
         request['instrumentId'] = this.market (symbol)['id'];
         // The API gives back the wrong response without proper id, price, etc.
         // Therefore, we just return the ID
@@ -779,7 +772,7 @@ module.exports = class equos extends Exchange {
         }
         // status
         let active = false;
-        if (market[6] === 1) {
+        if (market['securityStatus'] === 1) {
             active = true;
         }
         const precision = {
