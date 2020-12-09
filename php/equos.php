@@ -123,6 +123,7 @@ class equos extends Exchange {
         if ($this->currencies_by_id === null) {
             $this->fetch_currencies();
         }
+        $params['verbose'] = true;
         $response = $this->publicGetGetInstrumentPairs ($params);
         $markets = array();
         $results = $this->safe_value($response, 'instrumentPairs', array());
@@ -286,7 +287,7 @@ class equos extends Exchange {
                 $scale = $position['quantity_scale'];
                 $free = $this->convert_from_scale($availableQuantity, $scale);
                 $total = $this->convert_from_scale($quantity, $scale);
-                $used = floatval ($this->decimal_to_precision($total - $free, ROUND, $scale));
+                $used = floatval($this->decimal_to_precision($total - $free, ROUND, $scale));
                 if (!$this->safe_value($balance, $symbol)) {
                     $balance[$symbol] = $this->account();
                 }
@@ -377,18 +378,11 @@ class equos extends Exchange {
 
     public function cancel_order($id, $symbol = null, $params = array ()) {
         if ($symbol === null) {
-            throw new ArgumentsRequired($this->id . ' fetchOrder requires a $symbol argument');
-        }
-        // NOTE => We need to fetch $order because we need to obtain the $symbol $id and $clientOrderId
-        $order = $this->fetch_order($id, $symbol, $params);
-        if ($this->safe_string($order, 'status') !== 'open') {
-            throw new OrderNotFound($this->id . ' => $order $id ' . $id . ' is not found in open order');
+            throw new ArgumentsRequired($this->id . ' cancelOrder requires a $symbol argument');
         }
         $this->load_markets();
-        $clientOrderId = $order['clientOrderId'];
-        // Equos' API requires the clOrdId and clOrdId
         $request = array();
-        $request['clOrdId'] = $clientOrderId;
+        $request['origOrderId'] = $id;
         $request['instrumentId'] = $this->market($symbol)['id'];
         // The API gives back the wrong response without proper $id, price, etc.
         // Therefore, we just return the ID
@@ -767,13 +761,13 @@ class equos extends Exchange {
     }
 
     public function parse_market($market) {
-        $id = $market[0]; // instrumentId
-        $symbol = $market[1]; // $symbol
+        $id = $market['instrumentId']; // instrumentId
+        $symbol = $market['symbol']; // $symbol
         $splitSymbol = explode('/', $symbol);
         $base = strtolower($splitSymbol[0]);
         $quote = strtolower($splitSymbol[1]);
-        $baseId = $market[3]; // $baseId
-        $quoteId = $market[2]; // quotedId
+        $baseId = $market['baseId']; // $baseId
+        $quoteId = $market['quoteId']; // quotedId
         $baseCurrency = $this->safe_value($this->currencies_by_id, $baseId);
         $quoteCurrency = $this->safe_value($this->currencies_by_id, $quoteId);
         if ($baseCurrency !== null) {
@@ -784,17 +778,17 @@ class equos extends Exchange {
         }
         // status
         $active = false;
-        if ($market[6] === 1) {
+        if ($market['securityStatus'] === 1) {
             $active = true;
         }
         $precision = array(
-            'amount' => $market[5], // quantity_scale
-            'price' => $market[4], // price_scale
+            'amount' => (int) round(-log10 ($market['minTradeVol'])), // tie amount $precision to minimum amount value
+            'price' => $market['price_scale'], // price_scale
             'cost' => null,
         );
         $limits = array(
             'amount' => array(
-                'min' => null,
+                'min' => $market['minTradeVol'],
                 'max' => null,
             ),
             'price' => array(
@@ -1240,7 +1234,7 @@ class equos extends Exchange {
     }
 
     public function convert_to_scale($number, $scale) {
-        return intval ($this->to_wei($number, $scale));
+        return intval($this->to_wei($number, $scale));
     }
 
     public function sign($path, $api = 'public', $method = 'GET', $params = array (), $headers = null, $body = null) {

@@ -117,6 +117,7 @@ module.exports = class equos extends Exchange {
         if (this.currencies_by_id === undefined) {
             await this.fetchCurrencies ();
         }
+        params['verbose'] = true;
         const response = await this.publicGetGetInstrumentPairs (params);
         const markets = [];
         const results = this.safeValue (response, 'instrumentPairs', []);
@@ -371,18 +372,11 @@ module.exports = class equos extends Exchange {
 
     async cancelOrder (id, symbol = undefined, params = {}) {
         if (symbol === undefined) {
-            throw new ArgumentsRequired (this.id + ' fetchOrder requires a symbol argument');
-        }
-        // NOTE: We need to fetch order because we need to obtain the symbol id and clientOrderId
-        const order = await this.fetchOrder (id, symbol, params);
-        if (this.safeString (order, 'status') !== 'open') {
-            throw new OrderNotFound (this.id + ': order id ' + id + ' is not found in open order');
+            throw new ArgumentsRequired (this.id + ' cancelOrder requires a symbol argument');
         }
         await this.loadMarkets ();
-        const clientOrderId = order['clientOrderId'];
-        // Equos' API requires the clOrdId and clOrdId
         const request = {};
-        request['clOrdId'] = clientOrderId;
+        request['origOrderId'] = id;
         request['instrumentId'] = this.market (symbol)['id'];
         // The API gives back the wrong response without proper id, price, etc.
         // Therefore, we just return the ID
@@ -761,13 +755,13 @@ module.exports = class equos extends Exchange {
     }
 
     parseMarket (market) {
-        const id = market[0]; // instrumentId
-        const symbol = market[1]; // symbol
+        const id = market['instrumentId']; // instrumentId
+        const symbol = market['symbol']; // symbol
         const splitSymbol = symbol.split ('/');
         let base = splitSymbol[0].toLowerCase ();
         let quote = splitSymbol[1].toLowerCase ();
-        const baseId = market[3]; // baseId
-        const quoteId = market[2]; // quotedId
+        const baseId = market['baseId']; // baseId
+        const quoteId = market['quoteId']; // quotedId
         const baseCurrency = this.safeValue (this.currencies_by_id, baseId);
         const quoteCurrency = this.safeValue (this.currencies_by_id, quoteId);
         if (baseCurrency !== undefined) {
@@ -778,17 +772,17 @@ module.exports = class equos extends Exchange {
         }
         // status
         let active = false;
-        if (market[6] === 1) {
+        if (market['securityStatus'] === 1) {
             active = true;
         }
         const precision = {
-            'amount': market[5], // quantity_scale
-            'price': market[4], // price_scale
+            'amount': Math.round (-Math.log10 (market['minTradeVol'])), // tie amount precision to minimum amount value
+            'price': market['price_scale'], // price_scale
             'cost': undefined,
         };
         const limits = {
             'amount': {
-                'min': undefined,
+                'min': market['minTradeVol'],
                 'max': undefined,
             },
             'price': {
